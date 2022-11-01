@@ -1,0 +1,10 @@
+import pygame
+from settings import *
+
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, pos, groups, surface):
+        super().__init__(groups)
+        self.image = surface
+        self.image = pygame.transform.scale(self.image, DEFAULT_IMAGE_SIZE)
+        self.rect = self.image.get_rect(topleft=pos)
