@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 
-
+# Tile class for drawing tiles in the game
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, groups, surface):
         super().__init__(groups)

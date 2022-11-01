@@ -3,7 +3,7 @@ from settings import *
 from creature import *
 from projectile import *
 
-
+# player class
 class Player(Creature):
     game_active = True
 
@@ -20,9 +20,7 @@ class Player(Creature):
         self.killable_sprites = killable_sprites
         self.visible_sprites = visible_sprites
         self.damaging_objects = damaging_objects
-        self.image = pygame.image.load(
-            "../graphics/player.png"
-        ).convert_alpha()
+        self.image = pygame.image.load("../graphics/player.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, DEFAULT_IMAGE_SIZE)
         self.rect = self.image.get_rect(topleft=pos)
         # this basically decreases the size of the rectangle.
@@ -49,6 +47,7 @@ class Player(Creature):
         self.animation_index = 0
         self.player_status = "right_idle"
 
+    # all the animation frames of the player
     def animation_frames(self):
         self.animation = {
             "right": [],
@@ -62,18 +61,14 @@ class Player(Creature):
             anim_image_right = pygame.image.load(
                 "../graphics/character/player/move/move_f" + str(i) + ".png"
             ).convert_alpha()
-            anim_image_left = pygame.transform.flip(
-                anim_image_right, True, False
-            )
+            anim_image_left = pygame.transform.flip(anim_image_right, True, False)
             self.animation["right"].append(
                 pygame.transform.scale(anim_image_right, DEFAULT_IMAGE_SIZE)
             )
             self.animation["left"].append(
                 pygame.transform.scale(anim_image_left, DEFAULT_IMAGE_SIZE)
             )
-        right_idle = pygame.image.load(
-            "../graphics/player.png"
-        ).convert_alpha()
+        right_idle = pygame.image.load("../graphics/player.png").convert_alpha()
         right_idle = pygame.transform.scale(right_idle, DEFAULT_IMAGE_SIZE)
         self.animation["right_idle"].append(right_idle)
         self.animation["left_idle"].append(
@@ -83,22 +78,20 @@ class Player(Creature):
             anim_death = pygame.image.load(
                 "../graphics/character/player/death/death_f" + str(i) + ".png"
             ).convert_alpha()
-            anim_image_left = pygame.transform.flip(
-                anim_image_right, True, False
-            )
+            anim_image_left = pygame.transform.flip(anim_image_right, True, False)
             self.animation["death"].append(
                 pygame.transform.scale(anim_death, DEFAULT_IMAGE_SIZE)
             )
 
+    # animate the player
     def animate(self):
         self.get_player_state()
-        self.image = self.animation[self.player_status][
-            int(self.animation_index)
-        ]
+        self.image = self.animation[self.player_status][int(self.animation_index)]
         self.animation_index += PLAYER_ANIMATION_TIME
         if self.animation_index >= len(self.animation[self.player_status]):
             self.animation_index = 0
 
+    # get input from the player
     def input(self):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
@@ -149,21 +142,25 @@ class Player(Creature):
             self.dash = True
             self.can_dash = False
 
+    # get player state for animation frames
     def get_player_state(self):
         if self.direction.x == 0 and self.direction.y == 0:
             if not "idle" in self.player_status:
                 self.animation_index = 0
                 self.player_status += "_idle"
 
+    # player dash
     def player_dash(self):
         if self.dash:
             self.move(20)
 
+    # manage ememy_player_collision
     def ememy_player_collision(self):
         for sprite in self.killable_sprites:
             if pygame.sprite.collide_rect(self, sprite):
                 self.damage_taken(sprite.damage)
 
+    # reduce dealth when damage taken
     def damage_taken(self, damage):
         if not self.invinsible:
             self.health -= damage
@@ -181,6 +178,7 @@ class Player(Creature):
         self.animate()
         self.ememy_player_collision()
 
+    # timer for all the countdowns
     def timer(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.shoot_time > self.shoot_timer:

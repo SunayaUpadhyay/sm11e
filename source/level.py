@@ -6,7 +6,7 @@ from player import *
 import random
 from enemy import *
 
-
+# Level class which initializes the player and enemies and the map
 class Level:
     def __init__(self):
         # get the display surface
@@ -29,17 +29,13 @@ class Level:
         self.spawn_pos = []
         self.enemy_type = list(ENEMIES.keys())
         # create a map blocker
-        for x, y, surface in self.map_data.get_layer_by_name(
-            "floor_block"
-        ).tiles():
+        for x, y, surface in self.map_data.get_layer_by_name("floor_block").tiles():
             x = x * TILESIZE
             y = y * TILESIZE
             Tile((x, y), [self.obstacle_sprites], surface)
 
         # spawn player in the map
-        for x, y, surface in self.map_data.get_layer_by_name(
-            "spawnable"
-        ).tiles():
+        for x, y, surface in self.map_data.get_layer_by_name("spawnable").tiles():
             x = x * TILESIZE
             y = y * TILESIZE
             self.spawn_pos.append((x, y))
@@ -52,6 +48,7 @@ class Level:
             self.killable_sprites,
         )
 
+    # generate random enemies randomly in the map
     def generate_enemies(self, spawn_pos, enemy_type):
         if self.spawn_enemy:
             self.spawn_time = pygame.time.get_ticks()
@@ -68,6 +65,7 @@ class Level:
             if self.spawn_countdown <= MAX_SPAWN_LIMIT:
                 self.spawn_countdown = MAX_SPAWN_LIMIT
 
+    # for all the countdowns
     def timer_countdown(self):
         current_time = pygame.time.get_ticks()
         if (
@@ -76,8 +74,8 @@ class Level:
         ):
             self.spawn_enemy = True
 
+    # update and draw the game
     def run(self):
-        # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.timer_countdown()
@@ -93,6 +91,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.map_data = map_data
         self.offset = pygame.math.Vector2()
 
+    # draw on the screen
     def custom_draw(self, player):
 
         for x, y, surface in self.map_data.get_layer_by_name("base").tiles():
@@ -107,9 +106,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
-        for sprite in sorted(
-            self.sprites(), key=lambda sprite: sprite.rect.centery
-        ):
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
@@ -122,8 +119,6 @@ class YSortCameraGroup(pygame.sprite.Group):
 
         # display score
         font = pygame.font.SysFont(None, 30, bold=True)
-        text = font.render(
-            "Score: " + str(Enemy.enemies_killed), True, (255, 255, 255)
-        )
+        text = font.render("Score: " + str(Enemy.enemies_killed), True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH / 2, 30))
         self.display_surface.blit(text, text_rect)

@@ -7,7 +7,7 @@ from enemy import *
 # interaction between the player and the tile (borders) implemented
 # movement of player implemented
 
-# main game classa
+# main game class
 class Game:
     def __init__(self):
         # Initialize pygame object
@@ -40,9 +40,9 @@ class Game:
                 # if game is active run the game
                 self.level.run()
             else:
+                # display the end screen
                 self.screen.fill("black")
                 self.game_over()
-                # display the end screen
 
     def game_over(self):
         font = pygame.font.SysFont(None, 64, bold=True)
@@ -51,9 +51,7 @@ class Game:
             "Score: " + str(Enemy.enemies_killed), True, (255, 255, 255)
         )
         text_rect = score_text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
-        game_over_rect = game_over_text.get_rect(
-            center=(WIDTH / 2, HEIGHT / 2 - 60)
-        )
+        game_over_rect = game_over_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 60))
         self.screen.blit(score_text, text_rect)
         self.screen.blit(game_over_text, game_over_rect)
 

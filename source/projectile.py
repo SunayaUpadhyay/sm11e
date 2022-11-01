@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 
-
+# Projectile class for gun bullets
 class Projectile(pygame.sprite.Sprite):
     def __init__(
         self,
@@ -29,6 +29,7 @@ class Projectile(pygame.sprite.Sprite):
         self.target_pos = target_pos
         self.get_direction()
 
+    # get the direction of the bullet
     def get_direction(self):
         target = pygame.math.Vector2(self.target_pos)
         current_position = pygame.math.Vector2((WIDTH / 2, HEIGHT / 2))
@@ -36,10 +37,10 @@ class Projectile(pygame.sprite.Sprite):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
+    # manage interaction between the bullet and the sprite
     def interaction(self):
         if pygame.sprite.spritecollideany(self, self.obstacle_sprites):
             self.kill()
-
         # loop through all the killable and damaging objects and check for collisions
         # if there is a collission between the bullet and a killable sprite, remove the
         # bullet from the screen, and call the got_hit function for the killable sprite
@@ -51,6 +52,7 @@ class Projectile(pygame.sprite.Sprite):
                     bullet.kill()
                     sprite.got_hit(bullet.damage)
 
+    # move the bullet
     def move(self):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()

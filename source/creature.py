@@ -1,11 +1,12 @@
 import pygame
 from settings import *
 
-
+# Parent class for player and enemies
 class Creature(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
 
+    # Manages movement
     def move(self, speed):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
@@ -16,6 +17,7 @@ class Creature(pygame.sprite.Sprite):
         self.collision("vertical")
         self.rect.center = self.hitbox.center
 
+    # Manages collission between obstacles and sprites
     def collision(self, direction):
         if direction == "horizontal":
             for sprite in self.obstacle_sprites:
