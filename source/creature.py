@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+from math import *
 
 # Parent class for player and enemies
 class Creature(pygame.sprite.Sprite):
@@ -34,3 +35,9 @@ class Creature(pygame.sprite.Sprite):
                         self.hitbox.bottom = sprite.rect.top
                     elif self.direction.y < 0:  # moving up
                         self.hitbox.top = sprite.rect.bottom
+
+    def toggle_wave(self):
+        if sin(pygame.time.get_ticks()) > 0:
+            return 255
+        else:
+            return 155

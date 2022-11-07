@@ -25,7 +25,10 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=rect_pos.center)
         self.hitbox = self.rect.inflate(-10, -10)
         self.speed = 15
-        self.damage = 10
+        background_sound = pygame.mixer.Sound("../sound/bullet.wav")
+        background_sound.set_volume(0.01)
+        background_sound.play()
+        self.damage = BULLET_DATA["damage"]
         self.target_pos = target_pos
         self.get_direction()
 
@@ -45,7 +48,7 @@ class Projectile(pygame.sprite.Sprite):
         # if there is a collission between the bullet and a killable sprite, remove the
         # bullet from the screen, and call the got_hit function for the killable sprite
         # the got_hit function should call the knockback funciton and damage function
-        # the damagae function should kill the ojecte if it's health is 0
+        # the damagae function should kill the object if it's health is 0
         for bullet in self.damaging_objects:
             for sprite in self.killable_sprites:
                 if pygame.sprite.collide_rect(bullet, sprite):

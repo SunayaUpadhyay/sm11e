@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from creature import *
 from projectile import *
+import math
 
 # player class
 class Player(Creature):
@@ -15,14 +16,23 @@ class Player(Creature):
         visible_sprites,
         damaging_objects,
         killable_sprites,
+        damage_player_object,
     ):
         super().__init__(groups)
         self.killable_sprites = killable_sprites
         self.visible_sprites = visible_sprites
+        self.damage_player_object = damage_player_object
         self.damaging_objects = damaging_objects
-        self.image = pygame.image.load("../graphics/player.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, DEFAULT_IMAGE_SIZE)
+        self.display_surface = pygame.display.get_surface()
+        self.image = pygame.image.load(
+            "../graphics/character/player/move/move_f1.png"
+        ).convert_alpha()
+        self.gun = pygame.image.load("../graphics/wepons/AK47/AK47.png").convert_alpha()
+        self.gun = pygame.transform.flip(self.gun, True, False)
+        self.gun = pygame.transform.scale(self.gun, (60, 60))
+        self.image = pygame.transform.scale(self.image, PLAYER_DEFAULT_IMAGE_SIZE)
         self.rect = self.image.get_rect(topleft=pos)
+        self.moved = False
         # this basically decreases the size of the rectangle.
         # total hieght is increased by 10 pixels
         self.hitbox = self.rect.inflate(0, 10)
@@ -63,13 +73,15 @@ class Player(Creature):
             ).convert_alpha()
             anim_image_left = pygame.transform.flip(anim_image_right, True, False)
             self.animation["right"].append(
-                pygame.transform.scale(anim_image_right, DEFAULT_IMAGE_SIZE)
+                pygame.transform.scale(anim_image_right, PLAYER_DEFAULT_IMAGE_SIZE)
             )
             self.animation["left"].append(
-                pygame.transform.scale(anim_image_left, DEFAULT_IMAGE_SIZE)
+                pygame.transform.scale(anim_image_left, PLAYER_DEFAULT_IMAGE_SIZE)
             )
-        right_idle = pygame.image.load("../graphics/player.png").convert_alpha()
-        right_idle = pygame.transform.scale(right_idle, DEFAULT_IMAGE_SIZE)
+        right_idle = pygame.image.load(
+            "../graphics/character/player/move/move_f1.png"
+        ).convert_alpha()
+        right_idle = pygame.transform.scale(right_idle, PLAYER_DEFAULT_IMAGE_SIZE)
         self.animation["right_idle"].append(right_idle)
         self.animation["left_idle"].append(
             pygame.transform.flip(right_idle, True, False)
@@ -80,7 +92,7 @@ class Player(Creature):
             ).convert_alpha()
             anim_image_left = pygame.transform.flip(anim_image_right, True, False)
             self.animation["death"].append(
-                pygame.transform.scale(anim_death, DEFAULT_IMAGE_SIZE)
+                pygame.transform.scale(anim_death, PLAYER_DEFAULT_IMAGE_SIZE)
             )
 
     # animate the player
@@ -90,6 +102,10 @@ class Player(Creature):
         self.animation_index += PLAYER_ANIMATION_TIME
         if self.animation_index >= len(self.animation[self.player_status]):
             self.animation_index = 0
+        if self.invinsible:
+            self.image.set_alpha(self.toggle_wave())
+        else:
+            self.image.set_alpha(255)
 
     # get input from the player
     def input(self):
@@ -142,6 +158,9 @@ class Player(Creature):
             self.dash = True
             self.can_dash = False
 
+        if self.direction.magnitude() > 0:
+            self.moved = True
+
     # get player state for animation frames
     def get_player_state(self):
         if self.direction.x == 0 and self.direction.y == 0:
@@ -159,15 +178,45 @@ class Player(Creature):
         for sprite in self.killable_sprites:
             if pygame.sprite.collide_rect(self, sprite):
                 self.damage_taken(sprite.damage)
+        for sprite in self.damage_player_object:
+            if pygame.sprite.collide_rect(self, sprite):
+                self.damage_taken(sprite.damage)
 
     # reduce dealth when damage taken
     def damage_taken(self, damage):
         if not self.invinsible:
             self.health -= damage
             self.invinsible = True
+            hurt_sound = pygame.mixer.Sound("../sound/hurt.ogg")
+            hurt_sound.set_volume(0.1)
+            hurt_sound.play()
             self.invinsible_time = pygame.time.get_ticks()
         if self.health <= 0:
             Player.game_active = False
+
+    def draw_gun(self, offsetx, offsety):
+        current_position = pygame.math.Vector2((WIDTH / 2, HEIGHT / 2))
+        correction_angle = 0
+
+        mx, my = pygame.mouse.get_pos()
+        dx, dy = mx - current_position.x, my - current_position.y
+        angle = math.degrees(math.atan2(-dy, dx)) - correction_angle
+        if angle > -90 and angle < 90:
+            self.gun = pygame.image.load(
+                "../graphics/wepons/AK47/AK47_right.png"
+            ).convert_alpha()
+            self.gun = pygame.transform.scale(self.gun, (80, 80))
+        else:
+            self.gun = pygame.image.load(
+                "../graphics/wepons/AK47/AK47_left.png"
+            ).convert_alpha()
+            self.gun = pygame.transform.scale(self.gun, (80, 80))
+
+        rot_image = pygame.transform.rotate(self.gun, (angle))
+
+        self.display_surface.blit(
+            rot_image, (self.rect[0] - offsetx, self.rect[1] - offsety)
+        )
 
     def update(self):
         self.input()

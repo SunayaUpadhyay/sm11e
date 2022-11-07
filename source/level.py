@@ -8,22 +8,31 @@ from enemy import *
 
 # Level class which initializes the player and enemies and the map
 class Level:
-    def __init__(self):
+    def __init__(self, n):
         # get the display surface
         self.display_surface = pygame.display.get_surface()
-        self.map_data = load_pygame("../graphics/tilemap/tmx/map_1.tmx")
+        self.map_data = load_pygame("../graphics/tilemap/tmx/map_" + str(n) + ".tmx")
         # sptite group setup
-        self.visible_sprites = YSortCameraGroup(self.map_data)
         self.obstacle_sprites = pygame.sprite.Group()
         self.killable_sprites = pygame.sprite.Group()
         self.damaging_objects = pygame.sprite.Group()
+        self.damage_player_object = pygame.sprite.Group()
+        self.visible_sprites = YSortCameraGroup(self.map_data, self.killable_sprites)
         # enemy spawnner
+
         self.spawn_countdown = INITIAL_SPAWN_TIMER
         self.spawn_enemy = True
         self.spawn_time = 0
         self.enemies_killed = 0
         # create sprite
         self.create_map()
+        # play sound
+        self.background_sound = pygame.mixer.Sound(
+            "../sound/Memoraphile - Spooky Dungeon.ogg"
+        )
+        self.background_sound.set_volume(0.1)
+        self.background_sound.play(-1)
+        self.pause = False
 
     def create_map(self):
         self.spawn_pos = []
@@ -46,7 +55,14 @@ class Level:
             self.visible_sprites,
             self.damaging_objects,
             self.killable_sprites,
+            self.damage_player_object,
         )
+
+    def is_paused(self):
+        return self.pause
+
+    def pause_game(self, pause):
+        self.pause = pause
 
     # generate random enemies randomly in the map
     def generate_enemies(self, spawn_pos, enemy_type):
@@ -58,12 +74,18 @@ class Level:
                 [self.visible_sprites, self.killable_sprites],
                 self.obstacle_sprites,
                 self.player,
+                self.damage_player_object,
+                self.visible_sprites,
             )
 
             self.spawn_enemy = False
             self.spawn_countdown -= SPAWN_DECREMENT_TIME
             if self.spawn_countdown <= MAX_SPAWN_LIMIT:
                 self.spawn_countdown = MAX_SPAWN_LIMIT
+
+    def manage_sound(self):
+        if not Player.game_active:
+            self.background_sound.stop()
 
     # for all the countdowns
     def timer_countdown(self):
@@ -76,19 +98,23 @@ class Level:
 
     # update and draw the game
     def run(self):
-        self.visible_sprites.custom_draw(self.player)
-        self.visible_sprites.update()
-        self.timer_countdown()
-        self.generate_enemies(self.spawn_pos, self.enemy_type)
+        if not self.pause:
+            self.visible_sprites.custom_draw(self.player)
+            self.visible_sprites.update()
+            self.timer_countdown()
+            if self.player.moved:
+                self.generate_enemies(self.spawn_pos, self.enemy_type)
+            self.manage_sound()
 
 
 class YSortCameraGroup(pygame.sprite.Group):
-    def __init__(self, map_data):
+    def __init__(self, map_data, killable_sprites):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
         self.half_width = self.display_surface.get_size()[0] // 2
         self.half_height = self.display_surface.get_size()[1] // 2
         self.map_data = map_data
+        self.killable_sprites = killable_sprites
         self.offset = pygame.math.Vector2()
 
     # draw on the screen
@@ -122,3 +148,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         text = font.render("Score: " + str(Enemy.enemies_killed), True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH / 2, 30))
         self.display_surface.blit(text, text_rect)
+
+        for sprite in self.killable_sprites:
+            sprite.draw_health_bar(self.offset.x, self.offset.y)
+
+        player.draw_gun(self.offset.x, self.offset.y)
