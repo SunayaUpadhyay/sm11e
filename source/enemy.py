@@ -7,7 +7,7 @@ from enemy_bullet import *
 class Enemy(Creature):
     total_enemies = 0
     enemies_killed = 0
-
+    # initialize enemy variables
     def __init__(
         self,
         pos,
@@ -67,6 +67,8 @@ class Enemy(Creature):
                 pygame.transform.scale(anim_left, ENEMIES[self.type]["size"])
             )
 
+    # manage shooting
+    # create a bullet from enemies' location that traves to the player's location
     def shoot(self):
         if not self.shooting:
             self.shoot_time = pygame.time.get_ticks()
@@ -102,7 +104,7 @@ class Enemy(Creature):
             Enemy.enemies_killed += 1
             self.kill()
 
-    # knockback self to the opposite direction
+    # knockback self in the opposite direction
     def knockback(self):
         opposite_direction = -self.direction
         if opposite_direction.magnitude() != 0:
@@ -121,6 +123,7 @@ class Enemy(Creature):
         if self.animation_index >= len(self.animation[self.status]):
             self.animation_index = 0
 
+    # timer to keep track of bullets
     def timer(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.shoot_time > self.shoot_timer:
@@ -134,6 +137,7 @@ class Enemy(Creature):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
+    # draws health bar on top of the enemy
     def draw_health_bar(self, offsetx, offsety):
         topleft = self.rect.topleft
         posx = topleft[0]
@@ -150,6 +154,7 @@ class Enemy(Creature):
             self.get_direction()
             self.move(self.speed)
             self.animate()
+        # if it's archers don't make them move
         else:
             self.get_direction()
             self.shoot()

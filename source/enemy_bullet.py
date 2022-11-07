@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 
-# Projectile class for gun bullets
+# Projectile class enemy bullets
 class EnemyBullet(pygame.sprite.Sprite):
     def __init__(
         self,
@@ -37,15 +37,13 @@ class EnemyBullet(pygame.sprite.Sprite):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
-    # manage interaction between the bullet and the sprite
+    # manage interaction between the bullet and the player
     def interaction(self):
+        # if bullet touches and obstacle, make it dissapear
         if pygame.sprite.spritecollideany(self, self.obstacle_sprites):
             self.kill()
-        # loop through all the killable and damaging objects and check for collisions
-        # if there is a collission between the bullet and a killable sprite, remove the
-        # bullet from the screen, and call the got_hit function for the killable sprite
-        # the got_hit function should call the knockback funciton and damage function
-        # the damagae function should kill the object if it's health is 0
+        # if the bullet touched the player, make the bullet dissapear
+        # and reduce health of player
         for bullet in self.damage_player_object:
             if pygame.sprite.collide_rect(bullet, self.player):
                 bullet.kill()
@@ -59,6 +57,7 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
 
+    # update everything
     def update(self):
         self.move()
         self.get_direction()

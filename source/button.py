@@ -1,6 +1,6 @@
 import pygame
 
-
+# Button class for buttons in game
 class Button:
     def __init__(
         self,
@@ -21,11 +21,14 @@ class Button:
         self.text_rect = self.text.get_rect(center=self.rectangle.center)
         self.screen = pygame.display.get_surface()
 
+    # draw the button on the screen
     def draw(self, func):
         pygame.draw.rect(self.screen, self.rect_color, self.rectangle, border_radius=12)
         self.screen.blit(self.text, self.text_rect)
         self.check_click(func)
 
+    # check if the button is click
+    # if button is clicked then run the passed in funtion
     def check_click(self, func):
         mouse_pos = pygame.mouse.get_pos()
         if self.rectangle.collidepoint(mouse_pos):

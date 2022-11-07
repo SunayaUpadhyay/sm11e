@@ -19,7 +19,6 @@ class Level:
         self.damage_player_object = pygame.sprite.Group()
         self.visible_sprites = YSortCameraGroup(self.map_data, self.killable_sprites)
         # enemy spawnner
-
         self.spawn_countdown = INITIAL_SPAWN_TIMER
         self.spawn_enemy = True
         self.spawn_time = 0
@@ -34,6 +33,7 @@ class Level:
         self.background_sound.play(-1)
         self.pause = False
 
+    # create the invisible layers of map and spawn the player in the world
     def create_map(self):
         self.spawn_pos = []
         self.enemy_type = list(ENEMIES.keys())
@@ -58,13 +58,15 @@ class Level:
             self.damage_player_object,
         )
 
+    # getter method for if the game is paused or not
     def is_paused(self):
         return self.pause
 
+    # setter method for pause
     def pause_game(self, pause):
         self.pause = pause
 
-    # generate random enemies randomly in the map
+    # spawn random enemies randomly in the map
     def generate_enemies(self, spawn_pos, enemy_type):
         if self.spawn_enemy:
             self.spawn_time = pygame.time.get_ticks()
@@ -77,17 +79,17 @@ class Level:
                 self.damage_player_object,
                 self.visible_sprites,
             )
-
             self.spawn_enemy = False
             self.spawn_countdown -= SPAWN_DECREMENT_TIME
             if self.spawn_countdown <= MAX_SPAWN_LIMIT:
                 self.spawn_countdown = MAX_SPAWN_LIMIT
 
+    # stop sound when the game is over
     def manage_sound(self):
         if not Player.game_active:
             self.background_sound.stop()
 
-    # for all the countdowns
+    # manage countdowns
     def timer_countdown(self):
         current_time = pygame.time.get_ticks()
         if (
@@ -107,6 +109,7 @@ class Level:
             self.manage_sound()
 
 
+# class for the camera of the game
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self, map_data, killable_sprites):
         super().__init__()
@@ -117,9 +120,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.killable_sprites = killable_sprites
         self.offset = pygame.math.Vector2()
 
-    # draw on the screen
+    # draw on the screen based on the movement of the player
     def custom_draw(self, player):
-
         for x, y, surface in self.map_data.get_layer_by_name("base").tiles():
             x = x * TILESIZE
             y = y * TILESIZE
@@ -128,7 +130,7 @@ class YSortCameraGroup(pygame.sprite.Group):
             map_offset_pos = map_rect.topleft - self.offset
             self.display_surface.blit(map_image, map_offset_pos)
 
-        # offset
+        # offset in realtion to the player
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
@@ -136,20 +138,22 @@ class YSortCameraGroup(pygame.sprite.Group):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
 
-        # display health
+        # display health of the player
         black_bar = pygame.Rect(15, 15, 200, 20)
         pygame.draw.rect(self.display_surface, "black", black_bar)
         health_bar = black_bar.copy()
         health_bar.width = player.health / PLAYER_HEALTH * 200
         pygame.draw.rect(self.display_surface, "red", health_bar)
 
-        # display score
+        # display score of the player
         font = pygame.font.SysFont(None, 30, bold=True)
         text = font.render("Score: " + str(Enemy.enemies_killed), True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH / 2, 30))
         self.display_surface.blit(text, text_rect)
 
+        # draw health bar of each enemy
         for sprite in self.killable_sprites:
             sprite.draw_health_bar(self.offset.x, self.offset.y)
 
+        # draw gun of the player
         player.draw_gun(self.offset.x, self.offset.y)

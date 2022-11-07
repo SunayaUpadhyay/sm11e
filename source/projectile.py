@@ -64,6 +64,7 @@ class Projectile(pygame.sprite.Sprite):
         self.hitbox.y += self.direction.y * self.speed
         self.rect.center = self.hitbox.center
 
+    # update everything
     def update(self):
         self.move()
         self.interaction()

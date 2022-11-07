@@ -7,7 +7,7 @@ import math
 # player class
 class Player(Creature):
     game_active = True
-
+    # initialize the player
     def __init__(
         self,
         pos,
@@ -47,8 +47,8 @@ class Player(Creature):
         self.dash = False
         self.dash_time = 0
         self.can_dash = True
-        self.dash_duration = 50
-        self.dash_cooldown = 400
+        self.dash_duration = 60
+        self.dash_cooldown = 1000
         self.shoot_time = 0
         self.invinsible = False
         self.invinsible_time = 0
@@ -139,7 +139,6 @@ class Player(Creature):
         if mouse[0] and not self.shooting:
             self.shoot_time = pygame.time.get_ticks()
             self.shooting = True
-            # self.player_status = "shooting"
             # create a new bullet which travels to the direction of the mouse
             # keep on creating new bullet as the button is mouse is clicked
             # when bullet idts
@@ -171,7 +170,10 @@ class Player(Creature):
     # player dash
     def player_dash(self):
         if self.dash:
-            self.move(20)
+            self.move(40)
+            dash_sound = pygame.mixer.Sound("../sound/dash.ogg")
+            dash_sound.set_volume(0.1)
+            dash_sound.play()
 
     # manage ememy_player_collision
     def ememy_player_collision(self):
@@ -194,6 +196,8 @@ class Player(Creature):
         if self.health <= 0:
             Player.game_active = False
 
+    # draw gun at the center pos of the player
+    # the gun points in the direction of the mmouse cursor
     def draw_gun(self, offsetx, offsety):
         current_position = pygame.math.Vector2((WIDTH / 2, HEIGHT / 2))
         correction_angle = 0
@@ -218,6 +222,7 @@ class Player(Creature):
             rot_image, (self.rect[0] - offsetx, self.rect[1] - offsety)
         )
 
+    # update everything
     def update(self):
         self.input()
         self.move(self.speed)

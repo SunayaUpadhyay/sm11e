@@ -24,6 +24,7 @@ class Game:
         self.level = None
         self.create_btn()
 
+    # game loop
     def run(self):
         while True:
             pygame.event.pump()
@@ -53,6 +54,7 @@ class Game:
             if self.game_state == "end":
                 self.game_over()
 
+    # creates all the buttons in the game
     def create_btn(self):
         self.start_btn = Button(
             "Start  Game",
@@ -68,6 +70,7 @@ class Game:
         self.resume_btn = Button("Resume", 300, 80, (WIDTH / 2, 295))
         self.exit_btn = Button("Exit", 300, 80, (WIDTH / 2, 405))
 
+    # game over screen
     def game_over(self):
         bg = pygame.image.load("../graphics/images/background.png").convert_alpha()
         bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
@@ -83,6 +86,7 @@ class Game:
         self.screen.blit(game_over_text, game_over_rect)
         self.over_btn.draw(lambda: self.move_to_next("menu"))
 
+    # pause screen
     def pause_screen(self):
         bg = pygame.image.load("../graphics/images/background.png").convert_alpha()
         bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
@@ -90,25 +94,30 @@ class Game:
         self.resume_btn.draw(self.unpause_game)
         self.exit_btn.draw(self.exit_game)
 
+    # unpause the game
     def unpause_game(self):
         if self.level != None:
             self.level.pause_game(False)
             self.game_state = "game"
 
+    # exit the game window
     def exit_game(self):
         pygame.quit()
         sys.exit()
 
+    # main menu screen
     def main_menu(self):
         bg = pygame.image.load("../graphics/images/background.png").convert_alpha()
         bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
         self.screen.blit(bg, (0, 0))
         self.start_btn.draw(lambda: self.move_to_next("level"))
 
+    # move to the next screen
     def move_to_next(self, state):
         self.game_state = state
         self.reset()
 
+    # map selection screen
     def map_selection(self):
         bg = pygame.image.load("../graphics/images/background.jpg").convert_alpha()
         bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
@@ -118,12 +127,14 @@ class Game:
         self.map3_btn.draw(lambda: self.select_map(3, "#25131a"))
         self.map4_btn.draw(lambda: self.select_map(4, "#191716"))
 
+    # depending on the map selected, get the correct lvl and colors
     def select_map(self, lev_num, bg_color):
         self.level_number = lev_num
         self.fill = bg_color
         self.level = Level(self.level_number)
         self.game_state = "game"
 
+    # reset all the player and enemy states
     def reset(self):
         Player.game_active = True
         Enemy.total_enemies = 0

@@ -36,6 +36,7 @@ class Creature(pygame.sprite.Sprite):
                     elif self.direction.y < 0:  # moving up
                         self.hitbox.top = sprite.rect.bottom
 
+    # reruns 255 or 155 based on the sin of the time
     def toggle_wave(self):
         if sin(pygame.time.get_ticks()) > 0:
             return 255
