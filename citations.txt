@@ -1,0 +1,2 @@
+All of the images, sound and textures are not my work. The player, enemy sprites and sound were taken from https://opengameart.org/.
+They are all copyright safe and is allowed to be used by their respective authors. 

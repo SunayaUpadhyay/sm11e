@@ -5,8 +5,8 @@ from enemy import *
 from level import *
 from button import *
 
-# interaction between the player and the tile (borders) implemented
-# movement of player implemented
+# used https://www.youtube.com/watch?v=QU1pPzEGrqw to understand how
+# pygame worked and as a guide when first starting the project.
 
 # main game class
 class Game:
@@ -15,10 +15,10 @@ class Game:
         pygame.init()
         self.game_state = "menu"
         self.fill = "black"
-        self.level_number = 1
+        self.level_number = 15
         # Create display surface
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Smilies")
+        pygame.display.set_caption("Smile")
         # Create clock
         self.clock = pygame.time.Clock()
         self.level = None
